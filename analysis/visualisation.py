@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 
 # Bubble area = UNIT_SCALES[unit] * log10(value + 1)
 # Area scales with log so the full dynamic range of each unit fits in the bubble size range.
@@ -152,7 +153,7 @@ def make_bubble_chart(column_groups, pivot, datasets_list, title, out_path,
 
 def make_neuroimaging_depthvsbreadth(pivot_per_subject, pivot_total, datasets_list, out_path,
                       highlight="CNeuroMod", column_groups_per_subject=None,
-                      column_groups_total=None):
+                      column_groups_total=None, extra_points=None):
     """Scatter plot: neuroimaging hours per subject (x) vs number of subjects (y).
 
     Neuroimaging hours sum all modalities in the "Neuroimaging" column group.
@@ -168,6 +169,7 @@ def make_neuroimaging_depthvsbreadth(pivot_per_subject, pivot_total, datasets_li
     highlight                : dataset name to highlight (drawn larger, distinct color)
     column_groups_per_subject: column_groups list used to derive per-subject paths/label
     column_groups_total      : column_groups list used to derive total paths
+    extra_points             : list of dicts with keys label, x, n_subjects, color
     """
     def _neuro_fields(column_groups):
         if column_groups is None:
@@ -259,6 +261,16 @@ def make_neuroimaging_depthvsbreadth(pivot_per_subject, pivot_total, datasets_li
                     ha="center", va=va, fontsize=8,
                     fontweight="bold" if is_highlight else "normal",
                     color=color, zorder=5)
+
+    for ep in (extra_points or []):
+        ep_x, ep_y = ep["x"], ep["n_subjects"]
+        ep_color = ep.get("color", "#4472C4")
+        ax.scatter(ep_x, ep_y, s=60, color=ep_color, zorder=3,
+                   edgecolors="white", linewidths=0.8)
+        ax.annotate(ep["label"], (ep_x, ep_y), xytext=(0, 6),
+                    textcoords="offset points", ha="center", va="bottom",
+                    fontsize=8, color=ep_color, zorder=5)
+
     ax.set_xlabel(xlabel, fontsize=10)
     ax.set_ylabel("Number of subjects", fontsize=10)
     ax.set_title("Brain recordings depth vs. breadth", fontsize=12, fontweight="bold")
@@ -269,6 +281,215 @@ def make_neuroimaging_depthvsbreadth(pivot_per_subject, pivot_total, datasets_li
     fig.savefig(out_path, dpi=150, bbox_inches="tight")
     plt.show()
     print(f"Saved {out_path.name}")
+
+
+def make_neuroimaging_depthvsbreadth_plotly(
+    pivot_per_subject, pivot_total, datasets_list, out_path,
+    highlight="CNeuroMod", column_groups_per_subject=None,
+    column_groups_total=None, extra_points=None,
+):
+    """Interactive Plotly version of make_neuroimaging_depthvsbreadth.
+
+    Saves a self-contained HTML file to out_path.
+    """
+    def _neuro_fields(column_groups):
+        if column_groups is None:
+            return []
+        for gname, _color, fields in column_groups:
+            if gname == "Brain recordings":
+                return fields
+        return []
+
+    neuro_ps = _neuro_fields(column_groups_per_subject)
+    neuro_tot = _neuro_fields(column_groups_total)
+
+    PER_SUBJECT_PATHS = [path for _, path, _ in neuro_ps] or [
+        "neuroimaging.fmri.per_subject_h",
+        "neuroimaging.eeg.per_subject_h",
+        "neuroimaging.meg.per_subject_h",
+        "neuroimaging.ieeg.per_subject_h",
+    ]
+    TOTAL_PATHS = [path for _, path, _ in neuro_tot] or [
+        "neuroimaging.fmri.total_h",
+        "neuroimaging.eeg.total_h",
+        "neuroimaging.meg.total_h",
+        "neuroimaging.ieeg.total_h",
+    ]
+    modality_labels = " + ".join(label for label, _, _ in neuro_ps) if neuro_ps \
+        else "fMRI + EEG + MEG + iEEG"
+    xlabel = f"Brain recording hours per subject ({modality_labels})"
+
+    def _sum_paths(pivot, ds, paths):
+        total = 0.0
+        for p in paths:
+            if ds in pivot.index and p in pivot.columns:
+                v = pivot.loc[ds, p]
+                if pd.notna(v):
+                    total += float(v)
+        return total
+
+    points = []
+    for ds in datasets_list:
+        x = _sum_paths(pivot_per_subject, ds, PER_SUBJECT_PATHS)
+        y_total = _sum_paths(pivot_total, ds, TOTAL_PATHS)
+        if x > 0 and y_total > 0:
+            points.append((ds, x, float(y_total / x)))
+
+    if not points:
+        print("No neuroimaging data found — skipping interactive scatter plot.")
+        return
+
+    x_vals = [x for _, x, _ in points]
+    y_vals = [n for _, _, n in points]
+    for ep in (extra_points or []):
+        x_vals.append(ep["x"])
+        y_vals.append(ep["n_subjects"])
+
+    x_lo = min(x_vals) * 0.3
+    x_hi = max(x_vals) * 3
+    y_lo = min(y_vals) * 0.3
+    y_hi = max(y_vals) * 3
+
+    x_pad = np.geomspace(x_lo, x_hi, 300)
+
+    iso_levels = [50, 200, 1000, 5000, 10000]
+    band_alphas = [0.18, 0.13, 0.08, 0.05, 0.02]
+
+    fig = go.Figure()
+
+    def _rgba(alpha):
+        return f"rgba(0,0,0,{alpha})"
+
+    # Bottom band: below the first iso-level
+    y_top = np.clip(iso_levels[0] / x_pad, y_lo, y_hi)
+    fig.add_trace(go.Scatter(
+        x=np.concatenate([x_pad, x_pad[::-1]]),
+        y=np.concatenate([y_top, np.full(len(x_pad), y_lo)]),
+        fill="toself",
+        fillcolor=_rgba(band_alphas[0]),
+        line=dict(width=0),
+        hoverinfo="skip",
+        showlegend=False,
+    ))
+
+    # Bands between successive iso-levels
+    for i in range(len(iso_levels) - 1):
+        y_bot = np.clip(iso_levels[i] / x_pad, y_lo, y_hi)
+        y_top = np.clip(iso_levels[i + 1] / x_pad, y_lo, y_hi)
+        fig.add_trace(go.Scatter(
+            x=np.concatenate([x_pad, x_pad[::-1]]),
+            y=np.concatenate([y_top, y_bot[::-1]]),
+            fill="toself",
+            fillcolor=_rgba(band_alphas[i + 1]),
+            line=dict(width=0),
+            hoverinfo="skip",
+            showlegend=False,
+        ))
+
+    # Iso-hour lines + labels
+    for H in iso_levels:
+        label = f"{H}h" if H < 1000 else f"{H // 1000}kh"
+        y_iso = H / x_pad
+        mask = (y_iso >= y_lo) & (y_iso <= y_hi)
+        if mask.any():
+            fig.add_trace(go.Scatter(
+                x=x_pad[mask], y=y_iso[mask],
+                mode="lines",
+                line=dict(color="grey", width=0.8, dash="dash"),
+                opacity=0.4,
+                hoverinfo="skip",
+                showlegend=False,
+            ))
+            # Label at the right end of the visible curve
+            xi = x_pad[mask][-1]
+            yi = y_iso[mask][-1]
+            fig.add_annotation(
+                x=np.log10(xi), y=np.log10(yi),
+                xref="x", yref="y",
+                text=f"  {label}",
+                showarrow=False,
+                font=dict(size=9, color="grey"),
+                xanchor="left",
+                yanchor="middle",
+            )
+
+    # Dataset points
+    for ds, x, n_sub in points:
+        is_highlight = ds == highlight
+        color = "#e63946" if is_highlight else "#4472C4"
+        size = 14 if is_highlight else 10
+        total_h = n_sub * x
+        fig.add_trace(go.Scatter(
+            x=[x], y=[n_sub],
+            mode="markers+text",
+            marker=dict(
+                size=size,
+                color=color,
+                line=dict(color="white", width=1),
+            ),
+            text=[ds],
+            textposition="top center" if not is_highlight else "bottom center",
+            textfont=dict(
+                size=10,
+                color=color,
+                family="Arial Black" if is_highlight else "Arial",
+            ),
+            hovertemplate=(
+                f"<b>{ds}</b><br>"
+                f"Per-subject hours: %{{x:.1f}} h<br>"
+                f"Subjects: %{{y:.0f}}<br>"
+                f"Total: {total_h:.0f} h<extra></extra>"
+            ),
+            showlegend=False,
+        ))
+
+    # Extra points
+    for ep in (extra_points or []):
+        ep_x, ep_y = ep["x"], ep["n_subjects"]
+        ep_color = ep.get("color", "#4472C4")
+        ep_total = ep_x * ep_y
+        fig.add_trace(go.Scatter(
+            x=[ep_x], y=[ep_y],
+            mode="markers+text",
+            marker=dict(size=10, color=ep_color, line=dict(color="white", width=1)),
+            text=[ep["label"]],
+            textposition="top center",
+            textfont=dict(size=10, color=ep_color),
+            hovertemplate=(
+                f"<b>{ep['label']}</b><br>"
+                f"Per-subject hours: %{{x:.1f}} h<br>"
+                f"Subjects: %{{y:.0f}}<br>"
+                f"Total: {ep_total:.0f} h<extra></extra>"
+            ),
+            showlegend=False,
+        ))
+
+    fig.update_layout(
+        title=dict(text="Brain recordings depth vs. breadth", font=dict(size=14, family="Arial")),
+        xaxis=dict(
+            title=xlabel,
+            type="log",
+            showgrid=False,
+            ticks="outside",
+            range=[np.log10(x_lo), np.log10(x_hi)],
+        ),
+        yaxis=dict(
+            title="Number of subjects",
+            type="log",
+            showgrid=False,
+            ticks="outside",
+            range=[np.log10(y_lo), np.log10(y_hi)],
+        ),
+        plot_bgcolor="white",
+        paper_bgcolor="white",
+        width=650,
+        height=550,
+        margin=dict(l=60, r=60, t=60, b=80),
+    )
+
+    out_path = str(out_path)
+    fig.write_html(out_path, include_plotlyjs="cdn")
+    print(f"Saved {out_path.split('/')[-1]}")
 
 
 def make_legend(out_path):
