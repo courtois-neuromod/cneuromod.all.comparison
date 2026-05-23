@@ -464,6 +464,16 @@ def make_neuroimaging_depthvsbreadth_plotly(
             showlegend=False,
         ))
 
+    def _pow10_ticks(lo, hi):
+        import math
+        exps = range(math.floor(math.log10(lo)), math.ceil(math.log10(hi)) + 1)
+        vals = [10**e for e in exps if lo * 0.5 <= 10**e <= hi * 2]
+        texts = [f"{v:g}" for v in vals]
+        return vals, texts
+
+    x_tickvals, x_ticktext = _pow10_ticks(x_lo, x_hi)
+    y_tickvals, y_ticktext = _pow10_ticks(y_lo, y_hi)
+
     fig.update_layout(
         title=dict(text="Brain recordings depth vs. breadth", font=dict(size=14, family="Arial")),
         xaxis=dict(
@@ -472,6 +482,8 @@ def make_neuroimaging_depthvsbreadth_plotly(
             showgrid=False,
             ticks="outside",
             range=[np.log10(x_lo), np.log10(x_hi)],
+            tickvals=x_tickvals,
+            ticktext=x_ticktext,
         ),
         yaxis=dict(
             title="Number of subjects",
@@ -479,6 +491,8 @@ def make_neuroimaging_depthvsbreadth_plotly(
             showgrid=False,
             ticks="outside",
             range=[np.log10(y_lo), np.log10(y_hi)],
+            tickvals=y_tickvals,
+            ticktext=y_ticktext,
         ),
         plot_bgcolor="white",
         paper_bgcolor="white",
