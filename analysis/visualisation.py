@@ -3,8 +3,6 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import plotly.graph_objects as go
-
 # Bubble area = UNIT_SCALES[unit] * log10(value + 1)
 # Area scales with log so the full dynamic range of each unit fits in the bubble size range.
 # MAX_S caps very large values; MIN_S sets the smallest visible dot.
@@ -152,7 +150,8 @@ def make_bubble_chart(column_groups, pivot, datasets_list, title, out_path,
 
 
 def make_neuroimaging_depthvsbreadth(pivot_per_subject, pivot_total, datasets_list, out_path,
-                      highlight="CNeuroMod", column_groups_per_subject=None,
+                      highlight="CNeuroMod", highlights=None,
+                      column_groups_per_subject=None,
                       column_groups_total=None, extra_points=None):
     """Scatter plot: neuroimaging hours per subject (x) vs number of subjects (y).
 
@@ -248,9 +247,13 @@ def make_neuroimaging_depthvsbreadth(pivot_per_subject, pivot_total, datasets_li
         ax.text(x_pad[-1], y_iso[-1], f"  {label}",
                 va="center", fontsize=7, color="grey", alpha=0.7)
 
+    all_highlights = {highlight: "#e63946"}
+    if highlights:
+        all_highlights.update(highlights)
+
     for ds, x, n_sub in points:
-        is_highlight = ds == highlight
-        color = "#e63946" if is_highlight else "#4472C4"
+        is_highlight = ds in all_highlights
+        color = all_highlights.get(ds, "#4472C4")
         marker_size = 120 if is_highlight else 60
         zorder = 4 if is_highlight else 3
         ax.scatter(x, n_sub, s=marker_size, color=color, zorder=zorder,
@@ -283,227 +286,96 @@ def make_neuroimaging_depthvsbreadth(pivot_per_subject, pivot_total, datasets_li
     print(f"Saved {out_path.name}")
 
 
-def make_neuroimaging_depthvsbreadth_plotly(
-    pivot_per_subject, pivot_total, datasets_list, out_path,
-    highlight="CNeuroMod", column_groups_per_subject=None,
-    column_groups_total=None, extra_points=None,
-):
-    """Interactive Plotly version of make_neuroimaging_depthvsbreadth.
+DATASET_COLORS = {
+    "CNeuroMod": "#e63946",
+    "IBC":       "#f4a261",
+    "NSD":       "#2a9d8f",
+}
 
-    Saves a self-contained HTML file to out_path.
+# (label, dotpath, divisor)
+# Images are divided by 100 so their scale (~0–100) matches hours (~0–100 h).
+RADAR_TASK_FIELDS = [
+    ("Images\n(×100)",  "tasks.images.per_subject_unique",           100),
+    ("Video\n(h)",      "tasks.video.per_subject_unique",              1),
+    ("Audio\n(h)",      "tasks.audio.per_subject_unique",              1),
+    ("Speech\n(h)",     "tasks.speech_listening.per_subject_unique",   1),
+    ("Text\n(h)",       "tasks.text_reading.per_subject_unique",       1),
+    ("Rest\n(h)",       "tasks.resting_state.per_subject_h",           1),
+    ("Controlled\n(h)", "tasks.controlled.per_subject_h",              1),
+    ("Games\n(h)",      "tasks.game.per_subject_h",                    1),
+]
+
+
+def make_task_composition_radar(pivot_per_subject, dataset, out_path,
+                                 task_fields=None, color=None, figsize=(4.5, 4.5),
+                                 r_max=None):
+    """Draw and save a polar bar (Nightingale rose) chart of per-subject task composition.
+
+    Each task type is a separate wedge bar; radius = absolute value (hours or images÷100).
+    Pass the same r_max to all datasets in a set so figures are panel-comparable.
     """
-    def _neuro_fields(column_groups):
-        if column_groups is None:
-            return []
-        for gname, _color, fields in column_groups:
-            if gname == "Brain recordings":
-                return fields
-        return []
+    if task_fields is None:
+        task_fields = RADAR_TASK_FIELDS
+    if color is None:
+        color = DATASET_COLORS.get(dataset, "#4472C4")
 
-    neuro_ps = _neuro_fields(column_groups_per_subject)
-    neuro_tot = _neuro_fields(column_groups_total)
+    labels = [label for label, _, _  in task_fields]
+    paths  = [path  for _, path, _   in task_fields]
+    divs   = [div   for _, _, div    in task_fields]
+    N = len(labels)
 
-    PER_SUBJECT_PATHS = [path for _, path, _ in neuro_ps] or [
-        "neuroimaging.fmri.per_subject_h",
-        "neuroimaging.eeg.per_subject_h",
-        "neuroimaging.meg.per_subject_h",
-        "neuroimaging.ieeg.per_subject_h",
-    ]
-    TOTAL_PATHS = [path for _, path, _ in neuro_tot] or [
-        "neuroimaging.fmri.total_h",
-        "neuroimaging.eeg.total_h",
-        "neuroimaging.meg.total_h",
-        "neuroimaging.ieeg.total_h",
-    ]
-    modality_labels = " + ".join(label for label, _, _ in neuro_ps) if neuro_ps \
-        else "fMRI + EEG + MEG + iEEG"
-    xlabel = f"Brain recording hours per subject ({modality_labels})"
+    values = []
+    for path, div in zip(paths, divs):
+        if dataset in pivot_per_subject.index and path in pivot_per_subject.columns:
+            v = pivot_per_subject.loc[dataset, path]
+            values.append(float(v) / div if pd.notna(v) and v > 0 else 0.0)
+        else:
+            values.append(0.0)
 
-    def _sum_paths(pivot, ds, paths):
-        total = 0.0
-        for p in paths:
-            if ds in pivot.index and p in pivot.columns:
-                v = pivot.loc[ds, p]
-                if pd.notna(v):
-                    total += float(v)
-        return total
+    if r_max is None:
+        r_max = max(values) if any(v > 0 for v in values) else 1.0
 
-    points = []
-    for ds in datasets_list:
-        x = _sum_paths(pivot_per_subject, ds, PER_SUBJECT_PATHS)
-        y_total = _sum_paths(pivot_total, ds, TOTAL_PATHS)
-        if x > 0 and y_total > 0:
-            points.append((ds, x, float(y_total / x)))
+    # Log-scale transform: map values to polar radius so 0.1 → 0, r_max → r_plot_max.
+    # Values ≤ 0 produce zero-height bars (invisible).
+    LOG_FLOOR = 0.1
+    log_min = np.log10(LOG_FLOOR)
+    log_max = np.log10(max(r_max, LOG_FLOOR))
+    r_plot_max = log_max - log_min
 
-    if not points:
-        print("No neuroimaging data found — skipping interactive scatter plot.")
-        return
+    def _to_r(v):
+        return np.log10(max(v, LOG_FLOOR)) - log_min if v > 0 else 0.0
 
-    x_vals = [x for _, x, _ in points]
-    y_vals = [n for _, _, n in points]
-    for ep in (extra_points or []):
-        x_vals.append(ep["x"])
-        y_vals.append(ep["n_subjects"])
+    bar_heights = [_to_r(v) for v in values]
 
-    x_lo = min(x_vals) * 0.3
-    x_hi = max(x_vals) * 3
-    y_lo = min(y_vals) * 0.3
-    y_hi = max(y_vals) * 3
+    # Radial tick marks at decade boundaries within range
+    tick_vals = [t for t in [0.1, 1, 10, 100] if t <= max(r_max, LOG_FLOOR) * 1.01]
+    tick_pos  = [_to_r(t) for t in tick_vals]
+    tick_labels = [f"{t:g}" for t in tick_vals]
 
-    x_pad = np.geomspace(x_lo, x_hi, 300)
+    angles = np.linspace(0, 2 * np.pi, N, endpoint=False)
+    bar_width = 2 * np.pi / N * 0.8
 
-    iso_levels = [50, 200, 1000, 5000, 10000]
-    band_alphas = [0.18, 0.13, 0.08, 0.05, 0.02]
+    fig, ax = plt.subplots(figsize=figsize, subplot_kw={"polar": True})
+    ax.set_theta_zero_location("N")
+    ax.set_theta_direction(-1)
 
-    fig = go.Figure()
+    ax.bar(angles, bar_heights, width=bar_width, bottom=0,
+           color=color, alpha=0.75, edgecolor="white", linewidth=0.8, zorder=3)
 
-    def _rgba(alpha):
-        return f"rgba(0,0,0,{alpha})"
+    ax.set_thetagrids(np.degrees(angles), labels, fontsize=9)
+    ax.set_rlabel_position(0)
+    ax.set_ylim(0, r_plot_max)
+    ax.set_yticks(tick_pos)
+    ax.set_yticklabels(tick_labels, fontsize=7, color="grey")
 
-    # Bottom band: below the first iso-level
-    y_top = np.clip(iso_levels[0] / x_pad, y_lo, y_hi)
-    fig.add_trace(go.Scatter(
-        x=np.concatenate([x_pad, x_pad[::-1]]),
-        y=np.concatenate([y_top, np.full(len(x_pad), y_lo)]),
-        fill="toself",
-        fillcolor=_rgba(band_alphas[0]),
-        line=dict(width=0),
-        hoverinfo="skip",
-        showlegend=False,
-    ))
+    ax.set_title(dataset, fontsize=13, fontweight="bold", color=color, pad=14)
+    ax.spines["polar"].set_visible(False)
+    ax.grid(color="grey", linestyle=":", linewidth=0.5, alpha=0.5)
 
-    # Bands between successive iso-levels
-    for i in range(len(iso_levels) - 1):
-        y_bot = np.clip(iso_levels[i] / x_pad, y_lo, y_hi)
-        y_top = np.clip(iso_levels[i + 1] / x_pad, y_lo, y_hi)
-        fig.add_trace(go.Scatter(
-            x=np.concatenate([x_pad, x_pad[::-1]]),
-            y=np.concatenate([y_top, y_bot[::-1]]),
-            fill="toself",
-            fillcolor=_rgba(band_alphas[i + 1]),
-            line=dict(width=0),
-            hoverinfo="skip",
-            showlegend=False,
-        ))
-
-    # Iso-hour lines + labels
-    for H in iso_levels:
-        label = f"{H}h" if H < 1000 else f"{H // 1000}kh"
-        y_iso = H / x_pad
-        mask = (y_iso >= y_lo) & (y_iso <= y_hi)
-        if mask.any():
-            fig.add_trace(go.Scatter(
-                x=x_pad[mask], y=y_iso[mask],
-                mode="lines",
-                line=dict(color="grey", width=0.8, dash="dash"),
-                opacity=0.4,
-                hoverinfo="skip",
-                showlegend=False,
-            ))
-            # Label at the right end of the visible curve
-            xi = x_pad[mask][-1]
-            yi = y_iso[mask][-1]
-            fig.add_annotation(
-                x=np.log10(xi), y=np.log10(yi),
-                xref="x", yref="y",
-                text=f"  {label}",
-                showarrow=False,
-                font=dict(size=9, color="grey"),
-                xanchor="left",
-                yanchor="middle",
-            )
-
-    # Dataset points
-    for ds, x, n_sub in points:
-        is_highlight = ds == highlight
-        color = "#e63946" if is_highlight else "#4472C4"
-        size = 14 if is_highlight else 10
-        total_h = n_sub * x
-        fig.add_trace(go.Scatter(
-            x=[x], y=[n_sub],
-            mode="markers+text",
-            marker=dict(
-                size=size,
-                color=color,
-                line=dict(color="white", width=1),
-            ),
-            text=[ds],
-            textposition="top center" if not is_highlight else "bottom center",
-            textfont=dict(
-                size=10,
-                color=color,
-                family="Arial Black" if is_highlight else "Arial",
-            ),
-            hovertemplate=(
-                f"<b>{ds}</b><br>"
-                f"Per-subject hours: %{{x:.1f}} h<br>"
-                f"Subjects: %{{y:.0f}}<br>"
-                f"Total: {total_h:.0f} h<extra></extra>"
-            ),
-            showlegend=False,
-        ))
-
-    # Extra points
-    for ep in (extra_points or []):
-        ep_x, ep_y = ep["x"], ep["n_subjects"]
-        ep_color = ep.get("color", "#4472C4")
-        ep_total = ep_x * ep_y
-        fig.add_trace(go.Scatter(
-            x=[ep_x], y=[ep_y],
-            mode="markers+text",
-            marker=dict(size=10, color=ep_color, line=dict(color="white", width=1)),
-            text=[ep["label"]],
-            textposition="top center",
-            textfont=dict(size=10, color=ep_color),
-            hovertemplate=(
-                f"<b>{ep['label']}</b><br>"
-                f"Per-subject hours: %{{x:.1f}} h<br>"
-                f"Subjects: %{{y:.0f}}<br>"
-                f"Total: {ep_total:.0f} h<extra></extra>"
-            ),
-            showlegend=False,
-        ))
-
-    def _pow10_ticks(lo, hi):
-        import math
-        exps = range(math.floor(math.log10(lo)), math.ceil(math.log10(hi)) + 1)
-        vals = [10**e for e in exps if lo * 0.5 <= 10**e <= hi * 2]
-        texts = [f"{v:g}" for v in vals]
-        return vals, texts
-
-    x_tickvals, x_ticktext = _pow10_ticks(x_lo, x_hi)
-    y_tickvals, y_ticktext = _pow10_ticks(y_lo, y_hi)
-
-    fig.update_layout(
-        title=dict(text="Brain recordings depth vs. breadth", font=dict(size=14, family="Arial")),
-        xaxis=dict(
-            title=xlabel,
-            type="log",
-            showgrid=False,
-            ticks="outside",
-            range=[np.log10(x_lo), np.log10(x_hi)],
-            tickvals=x_tickvals,
-            ticktext=x_ticktext,
-        ),
-        yaxis=dict(
-            title="Number of subjects",
-            type="log",
-            showgrid=False,
-            ticks="outside",
-            range=[np.log10(y_lo), np.log10(y_hi)],
-            tickvals=y_tickvals,
-            ticktext=y_ticktext,
-        ),
-        plot_bgcolor="white",
-        paper_bgcolor="white",
-        width=650,
-        height=550,
-        margin=dict(l=60, r=60, t=60, b=80),
-    )
-
-    out_path = str(out_path)
-    fig.write_html(out_path, include_plotlyjs="cdn")
-    print(f"Saved {out_path.split('/')[-1]}")
+    plt.tight_layout()
+    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    plt.show()
+    print(f"Saved {out_path.name}")
 
 
 def make_legend(out_path):
