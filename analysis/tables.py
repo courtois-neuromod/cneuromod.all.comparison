@@ -4,23 +4,19 @@ from pathlib import Path
 
 
 COLUMN_GROUPS_PER_SUBJECT = [
-    ("Brain recordings", "#4472C4", [
+    ("Brain", "#4472C4", [
         ("fMRI",  "neuroimaging.fmri.per_subject_h",  "h"),
-        ("EEG",   "neuroimaging.eeg.per_subject_h",   "h"),
-        ("MEG",   "neuroimaging.meg.per_subject_h",   "h"),
-        ("iEEG",  "neuroimaging.ieeg.per_subject_h",  "h"),
-        ("Ca²⁺",  "neuroimaging.calcium_imaging.per_subject_h", "h"),
     ]),
     ("Tasks", "#538135", [
-        ("Images", "tasks.images.per_subject_unique",           "#img"),
-        ("Video",  "tasks.video.per_subject_unique",            "h"),
-        ("Audio",  "tasks.audio.per_subject_unique",            "h"),
-        ("Speech", "tasks.speech_listening.per_subject_unique", "h"),
-        ("Text",   "tasks.text_reading.per_subject_unique",     "h"),
-        ("Rest",   "tasks.resting_state.per_subject_h",         "h"),
-        ("Controlled", "tasks.controlled.per_subject_h",        "h"),
-        ("Games",      "tasks.game.per_subject_h",              "h"),
-        ("Contrasts",  "tasks.contrasts.per_subject",               "#"),
+        ("Images",     "tasks.images.per_subject_unique",           "#img"),
+        ("Video",      "tasks.video.per_subject_unique",            "h"),
+        ("Audio",      "tasks.audio.per_subject_unique",            "h"),
+        ("Speech",     "tasks.speech_listening.per_subject_unique", "h"),
+        ("Text",       "tasks.text_reading.per_subject_unique",     "h"),
+        ("Rest",       "tasks.resting_state.per_subject_h",        "h"),
+        ("Controlled", "tasks.controlled.per_subject_h",           "h"),
+        ("Games",      "tasks.game.per_subject_h",                 "h"),
+        ("Contrasts",  "tasks.contrasts.per_subject",              "#"),
     ]),
     ("Physiology", "#7030A0", [
         ("ECG",   "physiology.ecg.per_subject_h",            "h"),

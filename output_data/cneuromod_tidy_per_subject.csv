@@ -1,9 +1,5 @@
 dataset,group,group_color,modality,dotpath,unit,value
-floc,Brain recordings,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,0.77
-floc,Brain recordings,#4472C4,EEG,neuroimaging.eeg.per_subject_h,h,
-floc,Brain recordings,#4472C4,MEG,neuroimaging.meg.per_subject_h,h,
-floc,Brain recordings,#4472C4,iEEG,neuroimaging.ieeg.per_subject_h,h,
-floc,Brain recordings,#4472C4,Ca²⁺,neuroimaging.calcium_imaging.per_subject_h,h,
+floc,Brain,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,0.77
 floc,Tasks,#538135,Images,tasks.images.per_subject_unique,#img,
 floc,Tasks,#538135,Video,tasks.video.per_subject_unique,h,
 floc,Tasks,#538135,Audio,tasks.audio.per_subject_unique,h,
@@ -18,11 +14,7 @@ floc,Physiology,#7030A0,Resp.,physiology.respiration.per_subject_h,h,
 floc,Physiology,#7030A0,PPG,physiology.plethysmograph.per_subject_h,h,
 floc,Physiology,#7030A0,EDA,physiology.eda.per_subject_h,h,
 floc,Physiology,#7030A0,Eye,physiology.eye_tracking.per_subject_h,h,
-friends,Brain recordings,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,65.0
-friends,Brain recordings,#4472C4,EEG,neuroimaging.eeg.per_subject_h,h,
-friends,Brain recordings,#4472C4,MEG,neuroimaging.meg.per_subject_h,h,
-friends,Brain recordings,#4472C4,iEEG,neuroimaging.ieeg.per_subject_h,h,
-friends,Brain recordings,#4472C4,Ca²⁺,neuroimaging.calcium_imaging.per_subject_h,h,
+friends,Brain,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,65.0
 friends,Tasks,#538135,Images,tasks.images.per_subject_unique,#img,
 friends,Tasks,#538135,Video,tasks.video.per_subject_unique,h,65.0
 friends,Tasks,#538135,Audio,tasks.audio.per_subject_unique,h,65.0
@@ -37,11 +29,7 @@ friends,Physiology,#7030A0,Resp.,physiology.respiration.per_subject_h,h,65.0
 friends,Physiology,#7030A0,PPG,physiology.plethysmograph.per_subject_h,h,65.0
 friends,Physiology,#7030A0,EDA,physiology.eda.per_subject_h,h,65.0
 friends,Physiology,#7030A0,Eye,physiology.eye_tracking.per_subject_h,h,22.0
-gamepad,Brain recordings,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,0.67
-gamepad,Brain recordings,#4472C4,EEG,neuroimaging.eeg.per_subject_h,h,
-gamepad,Brain recordings,#4472C4,MEG,neuroimaging.meg.per_subject_h,h,
-gamepad,Brain recordings,#4472C4,iEEG,neuroimaging.ieeg.per_subject_h,h,
-gamepad,Brain recordings,#4472C4,Ca²⁺,neuroimaging.calcium_imaging.per_subject_h,h,
+gamepad,Brain,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,0.67
 gamepad,Tasks,#538135,Images,tasks.images.per_subject_unique,#img,
 gamepad,Tasks,#538135,Video,tasks.video.per_subject_unique,h,
 gamepad,Tasks,#538135,Audio,tasks.audio.per_subject_unique,h,
@@ -56,11 +44,7 @@ gamepad,Physiology,#7030A0,Resp.,physiology.respiration.per_subject_h,h,
 gamepad,Physiology,#7030A0,PPG,physiology.plethysmograph.per_subject_h,h,
 gamepad,Physiology,#7030A0,EDA,physiology.eda.per_subject_h,h,
 gamepad,Physiology,#7030A0,Eye,physiology.eye_tracking.per_subject_h,h,
-harrypotter,Brain recordings,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,1.17
-harrypotter,Brain recordings,#4472C4,EEG,neuroimaging.eeg.per_subject_h,h,
-harrypotter,Brain recordings,#4472C4,MEG,neuroimaging.meg.per_subject_h,h,
-harrypotter,Brain recordings,#4472C4,iEEG,neuroimaging.ieeg.per_subject_h,h,
-harrypotter,Brain recordings,#4472C4,Ca²⁺,neuroimaging.calcium_imaging.per_subject_h,h,
+harrypotter,Brain,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,1.17
 harrypotter,Tasks,#538135,Images,tasks.images.per_subject_unique,#img,
 harrypotter,Tasks,#538135,Video,tasks.video.per_subject_unique,h,
 harrypotter,Tasks,#538135,Audio,tasks.audio.per_subject_unique,h,
@@ -75,11 +59,7 @@ harrypotter,Physiology,#7030A0,Resp.,physiology.respiration.per_subject_h,h,1.17
 harrypotter,Physiology,#7030A0,PPG,physiology.plethysmograph.per_subject_h,h,1.17
 harrypotter,Physiology,#7030A0,EDA,physiology.eda.per_subject_h,h,1.17
 harrypotter,Physiology,#7030A0,Eye,physiology.eye_tracking.per_subject_h,h,
-hcptrt,Brain recordings,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,9.1
-hcptrt,Brain recordings,#4472C4,EEG,neuroimaging.eeg.per_subject_h,h,
-hcptrt,Brain recordings,#4472C4,MEG,neuroimaging.meg.per_subject_h,h,
-hcptrt,Brain recordings,#4472C4,iEEG,neuroimaging.ieeg.per_subject_h,h,
-hcptrt,Brain recordings,#4472C4,Ca²⁺,neuroimaging.calcium_imaging.per_subject_h,h,
+hcptrt,Brain,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,9.1
 hcptrt,Tasks,#538135,Images,tasks.images.per_subject_unique,#img,
 hcptrt,Tasks,#538135,Video,tasks.video.per_subject_unique,h,
 hcptrt,Tasks,#538135,Audio,tasks.audio.per_subject_unique,h,
@@ -94,11 +74,7 @@ hcptrt,Physiology,#7030A0,Resp.,physiology.respiration.per_subject_h,h,
 hcptrt,Physiology,#7030A0,PPG,physiology.plethysmograph.per_subject_h,h,
 hcptrt,Physiology,#7030A0,EDA,physiology.eda.per_subject_h,h,
 hcptrt,Physiology,#7030A0,Eye,physiology.eye_tracking.per_subject_h,h,
-mario,Brain recordings,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,16.8
-mario,Brain recordings,#4472C4,EEG,neuroimaging.eeg.per_subject_h,h,
-mario,Brain recordings,#4472C4,MEG,neuroimaging.meg.per_subject_h,h,
-mario,Brain recordings,#4472C4,iEEG,neuroimaging.ieeg.per_subject_h,h,
-mario,Brain recordings,#4472C4,Ca²⁺,neuroimaging.calcium_imaging.per_subject_h,h,
+mario,Brain,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,16.8
 mario,Tasks,#538135,Images,tasks.images.per_subject_unique,#img,
 mario,Tasks,#538135,Video,tasks.video.per_subject_unique,h,16.8
 mario,Tasks,#538135,Audio,tasks.audio.per_subject_unique,h,16.8
@@ -113,11 +89,7 @@ mario,Physiology,#7030A0,Resp.,physiology.respiration.per_subject_h,h,16.8
 mario,Physiology,#7030A0,PPG,physiology.plethysmograph.per_subject_h,h,16.8
 mario,Physiology,#7030A0,EDA,physiology.eda.per_subject_h,h,16.8
 mario,Physiology,#7030A0,Eye,physiology.eye_tracking.per_subject_h,h,
-movie10,Brain recordings,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,10.0
-movie10,Brain recordings,#4472C4,EEG,neuroimaging.eeg.per_subject_h,h,
-movie10,Brain recordings,#4472C4,MEG,neuroimaging.meg.per_subject_h,h,
-movie10,Brain recordings,#4472C4,iEEG,neuroimaging.ieeg.per_subject_h,h,
-movie10,Brain recordings,#4472C4,Ca²⁺,neuroimaging.calcium_imaging.per_subject_h,h,
+movie10,Brain,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,10.0
 movie10,Tasks,#538135,Images,tasks.images.per_subject_unique,#img,
 movie10,Tasks,#538135,Video,tasks.video.per_subject_unique,h,7.3
 movie10,Tasks,#538135,Audio,tasks.audio.per_subject_unique,h,7.3
@@ -132,11 +104,7 @@ movie10,Physiology,#7030A0,Resp.,physiology.respiration.per_subject_h,h,10.0
 movie10,Physiology,#7030A0,PPG,physiology.plethysmograph.per_subject_h,h,10.0
 movie10,Physiology,#7030A0,EDA,physiology.eda.per_subject_h,h,10.0
 movie10,Physiology,#7030A0,Eye,physiology.eye_tracking.per_subject_h,h,
-retinotopy,Brain recordings,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,1.4
-retinotopy,Brain recordings,#4472C4,EEG,neuroimaging.eeg.per_subject_h,h,
-retinotopy,Brain recordings,#4472C4,MEG,neuroimaging.meg.per_subject_h,h,
-retinotopy,Brain recordings,#4472C4,iEEG,neuroimaging.ieeg.per_subject_h,h,
-retinotopy,Brain recordings,#4472C4,Ca²⁺,neuroimaging.calcium_imaging.per_subject_h,h,
+retinotopy,Brain,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,1.4
 retinotopy,Tasks,#538135,Images,tasks.images.per_subject_unique,#img,
 retinotopy,Tasks,#538135,Video,tasks.video.per_subject_unique,h,
 retinotopy,Tasks,#538135,Audio,tasks.audio.per_subject_unique,h,
@@ -151,11 +119,7 @@ retinotopy,Physiology,#7030A0,Resp.,physiology.respiration.per_subject_h,h,
 retinotopy,Physiology,#7030A0,PPG,physiology.plethysmograph.per_subject_h,h,
 retinotopy,Physiology,#7030A0,EDA,physiology.eda.per_subject_h,h,
 retinotopy,Physiology,#7030A0,Eye,physiology.eye_tracking.per_subject_h,h,
-shinobi,Brain recordings,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,8.0
-shinobi,Brain recordings,#4472C4,EEG,neuroimaging.eeg.per_subject_h,h,
-shinobi,Brain recordings,#4472C4,MEG,neuroimaging.meg.per_subject_h,h,
-shinobi,Brain recordings,#4472C4,iEEG,neuroimaging.ieeg.per_subject_h,h,
-shinobi,Brain recordings,#4472C4,Ca²⁺,neuroimaging.calcium_imaging.per_subject_h,h,
+shinobi,Brain,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,8.0
 shinobi,Tasks,#538135,Images,tasks.images.per_subject_unique,#img,
 shinobi,Tasks,#538135,Video,tasks.video.per_subject_unique,h,8.0
 shinobi,Tasks,#538135,Audio,tasks.audio.per_subject_unique,h,8.0
@@ -170,11 +134,7 @@ shinobi,Physiology,#7030A0,Resp.,physiology.respiration.per_subject_h,h,8.0
 shinobi,Physiology,#7030A0,PPG,physiology.plethysmograph.per_subject_h,h,8.0
 shinobi,Physiology,#7030A0,EDA,physiology.eda.per_subject_h,h,8.0
 shinobi,Physiology,#7030A0,Eye,physiology.eye_tracking.per_subject_h,h,
-things,Brain recordings,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,16.4
-things,Brain recordings,#4472C4,EEG,neuroimaging.eeg.per_subject_h,h,
-things,Brain recordings,#4472C4,MEG,neuroimaging.meg.per_subject_h,h,
-things,Brain recordings,#4472C4,iEEG,neuroimaging.ieeg.per_subject_h,h,
-things,Brain recordings,#4472C4,Ca²⁺,neuroimaging.calcium_imaging.per_subject_h,h,
+things,Brain,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,16.4
 things,Tasks,#538135,Images,tasks.images.per_subject_unique,#img,4320.0
 things,Tasks,#538135,Video,tasks.video.per_subject_unique,h,
 things,Tasks,#538135,Audio,tasks.audio.per_subject_unique,h,
