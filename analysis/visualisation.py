@@ -5,6 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
+
 # Bubble area = UNIT_SCALES[unit] * log10(value + 1)
 # Area scales with log so the full dynamic range of each unit fits in the bubble size range.
 # MAX_S caps very large values; MIN_S sets the smallest visible dot.
@@ -352,15 +353,15 @@ def make_neuroimaging_depthvsbreadth(pivot_per_subject, pivot_total, datasets_li
     x_pad = np.geomspace(x_lo, x_hi, 300)
 
     # Gray gradient bands — darker where total neuroimaging hours are lower
-    iso_levels = [50, 200, 1000, 5000, 10000]
-    band_alphas = [0.18, 0.13, 0.08, 0.05, 0.02]
+    iso_levels = [100, 1000, 10000]
+    band_alphas = [0.18, 0.10, 0.04]
     ax.fill_between(x_pad, 1e-3, iso_levels[0] / x_pad,
                     color="black", alpha=band_alphas[0], zorder=0)
     for i in range(len(iso_levels) - 1):
         ax.fill_between(x_pad, iso_levels[i] / x_pad, iso_levels[i + 1] / x_pad,
                         color="black", alpha=band_alphas[i + 1], zorder=0)
 
-    for H in [50, 200, 1000, 5000, 10000]:
+    for H in [100, 1000, 10000]:
         label = f"{H}h" if H < 1000 else f"{H // 1000}kh"
         y_iso = H / x_pad
         ax.plot(x_pad, y_iso, color="grey", linewidth=0.7,
@@ -369,6 +370,17 @@ def make_neuroimaging_depthvsbreadth(pivot_per_subject, pivot_total, datasets_li
                 va="center", fontsize=7, color="grey", alpha=0.7)
 
     _plasma_zero = cm.get_cmap("plasma")(0.0)
+    # Per-dataset label offsets (xytext_dx, xytext_dy, ha, va) to avoid overlaps.
+    _LABEL_OFFSETS = {
+        "MSC":          (  0,   6, "center", "bottom"),
+        "NL-fMRI":      (  0,  -6, "center", "top"),
+        "BOLD5000":     (  0,  -6, "center", "top"),
+        "IBC":          (  0,   6, "center", "bottom"),
+        "NSD":          (  0,  -6, "center", "top"),
+        "MyConnectome": (-25,  -6, "center", "top"),
+        "Dr Who":       ( 15,  -6, "center", "top"),
+    }
+
     if dataset_colors is not None:
         for ds, x, n_sub in points:
             color = dataset_colors.get(ds, RANK_GRAY)
@@ -379,10 +391,13 @@ def make_neuroimaging_depthvsbreadth(pivot_per_subject, pivot_total, datasets_li
             zorder = 4 if is_top else 3
             ax.scatter(x, n_sub, s=marker_size, color=color, zorder=zorder,
                        edgecolors="white", linewidths=0.8)
-            va = "bottom" if not is_top else "top"
-            offset = (0, 6) if not is_top else (0, -6)
-            ax.annotate(ds, (x, n_sub), xytext=offset, textcoords="offset points",
-                        ha="center", va=va, fontsize=8,
+            if ds in _LABEL_OFFSETS:
+                dx, dy, ha, va = _LABEL_OFFSETS[ds]
+            else:
+                va = "bottom" if not is_top else "top"
+                dx, dy, ha = 0, (6 if not is_top else -6), "center"
+            ax.annotate(ds, (x, n_sub), xytext=(dx, dy), textcoords="offset points",
+                        ha=ha, va=va, fontsize=8,
                         fontweight="bold" if is_top else "normal",
                         color=color, zorder=5)
     else:
@@ -397,10 +412,13 @@ def make_neuroimaging_depthvsbreadth(pivot_per_subject, pivot_total, datasets_li
             zorder = 4 if is_highlight else 3
             ax.scatter(x, n_sub, s=marker_size, color=color, zorder=zorder,
                        edgecolors="white", linewidths=0.8)
-            va = "bottom" if not is_highlight else "top"
-            offset = (0, 6) if not is_highlight else (0, -6)
-            ax.annotate(ds, (x, n_sub), xytext=offset, textcoords="offset points",
-                        ha="center", va=va, fontsize=8,
+            if ds in _LABEL_OFFSETS:
+                dx, dy, ha, va = _LABEL_OFFSETS[ds]
+            else:
+                va = "bottom" if not is_highlight else "top"
+                dx, dy, ha = 0, (6 if not is_highlight else -6), "center"
+            ax.annotate(ds, (x, n_sub), xytext=(dx, dy), textcoords="offset points",
+                        ha=ha, va=va, fontsize=8,
                         fontweight="bold" if is_highlight else "normal",
                         color=color, zorder=5)
 
@@ -415,7 +433,7 @@ def make_neuroimaging_depthvsbreadth(pivot_per_subject, pivot_total, datasets_li
 
     ax.set_xlabel(xlabel, fontsize=10)
     ax.set_ylabel("Number of subjects", fontsize=10)
-    ax.set_title("Brain recordings depth vs. breadth", fontsize=12, fontweight="bold")
+    ax.set_title("")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
@@ -431,26 +449,27 @@ DATASET_COLORS = {
     "NSD":       "#2a9d8f",
 }
 
-# (label, dotpath, divisor)
+# (full_label, abbrev, dotpath, divisor)
 # Images are divided by 100 so their scale (~0–100) matches hours (~0–100 h).
+# full_label is shown on the legend (empty) radar; abbrev is shown on each dataset radar.
 RADAR_TASK_FIELDS = [
-    ("Images\n(×100)",   "tasks.images.per_subject_unique",            100),
-    ("Video\n(h)",       "tasks.video.per_subject_unique",               1),
-    ("Audio\n(h)",       "tasks.audio.per_subject_unique",               1),
-    ("Speech\n(h)",      "tasks.speech_listening.per_subject_unique",    1),
-    ("Text\n(h)",        "tasks.text_reading.per_subject_unique",        1),
-    ("Rest\n(h)",        "tasks.resting_state.per_subject_h",            1),
-    ("Controlled\n(h)",  "tasks.controlled.per_subject_h",               1),
-    ("Games\n(h)",       "tasks.game.per_subject_h",                     1),
-    ("Contrasts\n(#)",   "tasks.contrasts.per_subject",                  1),
+    ("Images\n(×100)", "I",  "tasks.images.per_subject_unique",            100),
+    ("Video\n(h)",     "V",  "tasks.video.per_subject_unique",               1),
+    ("Audio\n(h)",     "A",  "tasks.audio.per_subject_unique",               1),
+    ("Speech\n(h)",    "Sp", "tasks.speech_listening.per_subject_unique",    1),
+    ("Text\n(h)",      "T",  "tasks.text_reading.per_subject_unique",        1),
+    ("Rest\n(h)",      "R",  "tasks.resting_state.per_subject_h",            1),
+    ("Controlled\n(h)","C",  "tasks.controlled.per_subject_h",               1),
+    ("Games\n(h)",     "G",  "tasks.game.per_subject_h",                     1),
+    ("Contrasts\n(#)", "#",  "tasks.contrasts.per_subject",                  1),
 ]
 
 
 def _draw_radar_on_ax(ax, pivot_per_subject, dataset, task_fields, color, r_max=None):
     """Draw a radar (Nightingale rose) chart onto an existing polar axes."""
-    labels = [label for label, _, _ in task_fields]
-    paths  = [path  for _, path, _ in task_fields]
-    divs   = [div   for _, _, div in task_fields]
+    labels = [abbrev for _, abbrev, _, _ in task_fields]
+    paths  = [path   for _, _, path, _ in task_fields]
+    divs   = [div    for _, _, _, div in task_fields]
     N = len(labels)
 
     values = []
@@ -507,9 +526,8 @@ def make_task_composition_radar(pivot_per_subject, dataset, out_path,
     if color is None:
         color = DATASET_COLORS.get(dataset, "#4472C4")
 
-    labels = [label for label, _, _ in task_fields]
-    paths  = [path  for _, path, _ in task_fields]
-    divs   = [div   for _, _, div in task_fields]
+    paths = [path for _, _, path, _ in task_fields]
+    divs  = [div  for _, _, _, div in task_fields]
 
     values = []
     for path, div in zip(paths, divs):
@@ -533,7 +551,7 @@ def make_task_composition_radar(pivot_per_subject, dataset, out_path,
 
 def _draw_empty_radar_on_ax(ax, task_fields, r_max):
     """Draw an empty radar chart showing only the grid, tick values, and category labels."""
-    labels = [label for label, _, _ in task_fields]
+    labels = [label for label, _, _, _ in task_fields]
     N = len(labels)
 
     LOG_FLOOR = 0.1
@@ -580,7 +598,7 @@ def make_radar_grid(pivot_per_subject, datasets_ranked, out_path,
     if r_max is None:
         all_vals = []
         for ds, _ in datasets_ranked:
-            for _, path, div in task_fields:
+            for _, _, path, div in task_fields:
                 if ds in pivot_per_subject.index and path in pivot_per_subject.columns:
                     v = pivot_per_subject.loc[ds, path]
                     if pd.notna(v) and v > 0:
