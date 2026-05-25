@@ -465,8 +465,16 @@ RADAR_TASK_FIELDS = [
 ]
 
 
-def _draw_radar_on_ax(ax, pivot_per_subject, dataset, task_fields, color, r_max=None):
-    """Draw a radar (Nightingale rose) chart onto an existing polar axes."""
+def _draw_radar_on_ax(ax, pivot_per_subject, dataset, task_fields, color, r_max=None,
+                      highlight_indices=None):
+    """Draw a radar (Nightingale rose) chart onto an existing polar axes.
+
+    highlight_indices: set of task-field indices where this dataset has the largest value;
+                       those bars are drawn with a black outline.
+    """
+    if highlight_indices is None:
+        highlight_indices = set()
+
     labels = [abbrev for _, abbrev, _, _ in task_fields]
     paths  = [path   for _, _, path, _ in task_fields]
     divs   = [div    for _, _, _, div in task_fields]
@@ -503,6 +511,15 @@ def _draw_radar_on_ax(ax, pivot_per_subject, dataset, task_fields, color, r_max=
     ax.set_theta_direction(-1)
     ax.bar(angles, bar_heights, width=bar_width, bottom=0,
            color=color, alpha=0.75, edgecolor="white", linewidth=0.8, zorder=3)
+
+    # Redraw highlighted bars with a black outline on top
+    if highlight_indices:
+        hi_angles  = [angles[i] for i in highlight_indices if bar_heights[i] > 0]
+        hi_heights = [bar_heights[i] for i in highlight_indices if bar_heights[i] > 0]
+        if hi_angles:
+            ax.bar(hi_angles, hi_heights, width=bar_width, bottom=0,
+                   color=color, alpha=0.75, edgecolor="black", linewidth=1.5, zorder=4)
+
     ax.set_thetagrids(np.degrees(angles), labels, fontsize=7)
     ax.set_rlabel_position(0)
     ax.set_ylim(0, r_plot_max)
@@ -510,7 +527,7 @@ def _draw_radar_on_ax(ax, pivot_per_subject, dataset, task_fields, color, r_max=
     ax.set_yticklabels(tick_labels, fontsize=6, color="grey")
     ax.set_title(dataset, fontsize=10, fontweight="bold", color=color, pad=10)
     ax.spines["polar"].set_visible(False)
-    ax.grid(color="grey", linestyle=":", linewidth=0.5, alpha=0.5)
+    ax.grid(color="grey", linestyle=":", linewidth=0.7, alpha=0.7)
 
 
 def make_task_composition_radar(pivot_per_subject, dataset, out_path,
@@ -577,7 +594,7 @@ def _draw_empty_radar_on_ax(ax, task_fields, r_max):
     ax.set_yticklabels(tick_labels, fontsize=13, color="black", fontweight="bold")
     ax.set_title("Scale", fontsize=11, fontweight="bold", color="black", pad=10)
     ax.spines["polar"].set_visible(False)
-    ax.grid(color="grey", linestyle=":", linewidth=0.5, alpha=0.5)
+    ax.grid(color="black", linestyle="-", linewidth=1.0, alpha=0.5)
 
 
 def make_radar_grid(pivot_per_subject, datasets_ranked, out_path,
@@ -609,11 +626,27 @@ def make_radar_grid(pivot_per_subject, datasets_ranked, out_path,
     n_rows = 2
     legend_width_ratio = 1.4
 
+    # For each task field, find the dataset (among datasets_ranked) with the highest value.
+    paths = [path for _, _, path, _ in task_fields]
+    divs  = [div  for _, _, _, div in task_fields]
+    task_max_ds = []
+    for path, div in zip(paths, divs):
+        best_ds, best_val = None, -1.0
+        for ds, _ in datasets_ranked:
+            if ds in pivot_per_subject.index and path in pivot_per_subject.columns:
+                v = pivot_per_subject.loc[ds, path]
+                val = float(v) / div if pd.notna(v) and v > 0 else 0.0
+            else:
+                val = 0.0
+            if val > best_val:
+                best_val, best_ds = val, ds
+        task_max_ds.append(best_ds)
+
     fig = plt.figure(figsize=(n_data_cols * 3.2 + legend_width_ratio * 3.2, n_rows * 3.4))
     gs = fig.add_gridspec(
         n_rows, n_data_cols + 1,
         width_ratios=[legend_width_ratio] + [1] * n_data_cols,
-        hspace=0.55, wspace=0.45,
+        hspace=0.25, wspace=0.45,
     )
 
     # Empty scale radar spanning both rows (replaces the text legend)
@@ -625,7 +658,9 @@ def make_radar_grid(pivot_per_subject, datasets_ranked, out_path,
         row = i // n_data_cols
         col = i % n_data_cols + 1
         ax = fig.add_subplot(gs[row, col], polar=True)
-        _draw_radar_on_ax(ax, pivot_per_subject, ds, task_fields, color, r_max=r_max)
+        highlight = {j for j, max_ds in enumerate(task_max_ds) if max_ds == ds}
+        _draw_radar_on_ax(ax, pivot_per_subject, ds, task_fields, color, r_max=r_max,
+                          highlight_indices=highlight)
 
     fig.savefig(out_path, dpi=150, bbox_inches="tight")
     plt.show()
