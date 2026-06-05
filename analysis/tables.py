@@ -118,8 +118,18 @@ def aggregate_cneuromod_yaml(cneuromod_dir: Path) -> dict:
         return result
 
     combined = _sum_dicts([{k: v for k, v in d.items() if k != "subjects_n"} for d in raw])
-    combined["subjects_n"] = raw[0].get("subjects_n", 6) if raw else 6
+    subjects_n = 6
+    combined["subjects_n"] = subjects_n
     combined["name"] = "CNeuroMod"
+
+    def _fix_per_subject_h(d):
+        if "total_h" in d and "per_subject_h" in d:
+            d["per_subject_h"] = round(d["total_h"] / subjects_n, 1)
+        for v in d.values():
+            if isinstance(v, dict):
+                _fix_per_subject_h(v)
+
+    _fix_per_subject_h(combined)
     return combined
 
 

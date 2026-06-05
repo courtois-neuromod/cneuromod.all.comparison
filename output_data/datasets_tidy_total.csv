@@ -341,22 +341,22 @@ UK Biobank,Physiology,#7030A0,Resp.,physiology.respiration.total_h,h,
 UK Biobank,Physiology,#7030A0,PPG,physiology.plethysmograph.total_h,h,
 UK Biobank,Physiology,#7030A0,EDA,physiology.eda.total_h,h,
 UK Biobank,Physiology,#7030A0,Eye,physiology.eye_tracking.total_h,h,
-CNeuroMod,Brain recordings,#4472C4,fMRI,neuroimaging.fmri.total_h,h,680.47
+CNeuroMod,Brain recordings,#4472C4,fMRI,neuroimaging.fmri.total_h,h,970.3
 CNeuroMod,Brain recordings,#4472C4,EEG,neuroimaging.eeg.total_h,h,
 CNeuroMod,Brain recordings,#4472C4,MEG,neuroimaging.meg.total_h,h,
 CNeuroMod,Brain recordings,#4472C4,iEEG,neuroimaging.ieeg.total_h,h,
 CNeuroMod,Brain recordings,#4472C4,Ca²⁺,neuroimaging.calcium_imaging.total_h,h,
 CNeuroMod,Tasks,#538135,Images,tasks.images.total_unique,#img,4320.0
-CNeuroMod,Tasks,#538135,Video,tasks.video.total_unique,h,187.3
-CNeuroMod,Tasks,#538135,Audio,tasks.audio.total_unique,h,187.3
-CNeuroMod,Tasks,#538135,Speech,tasks.speech_listening.total_unique,h,72.3
-CNeuroMod,Tasks,#538135,Text,tasks.text_reading.total_unique,h,1.17
+CNeuroMod,Tasks,#538135,Video,tasks.video.total_unique,h,296.9
+CNeuroMod,Tasks,#538135,Audio,tasks.audio.total_unique,h,303.6
+CNeuroMod,Tasks,#538135,Speech,tasks.speech_listening.total_unique,h,85.1
+CNeuroMod,Tasks,#538135,Text,tasks.text_reading.total_unique,h,4.0
 CNeuroMod,Tasks,#538135,Rest,tasks.resting_state.total_h,h,7.5
-CNeuroMod,Tasks,#538135,Controlled,tasks.controlled.total_h,h,124.17
-CNeuroMod,Tasks,#538135,Games,tasks.game.total_h,h,115.0
-CNeuroMod,Tasks,#538135,Contrasts,tasks.contrasts.total,#,58.0
-CNeuroMod,Physiology,#7030A0,ECG,physiology.ecg.total_h,h,548.8
-CNeuroMod,Physiology,#7030A0,Resp.,physiology.respiration.total_h,h,548.8
-CNeuroMod,Physiology,#7030A0,PPG,physiology.plethysmograph.total_h,h,548.8
-CNeuroMod,Physiology,#7030A0,EDA,physiology.eda.total_h,h,548.8
-CNeuroMod,Physiology,#7030A0,Eye,physiology.eye_tracking.total_h,h,110.0
+CNeuroMod,Tasks,#538135,Controlled,tasks.controlled.total_h,h,128.37
+CNeuroMod,Tasks,#538135,Games,tasks.game.total_h,h,261.2
+CNeuroMod,Tasks,#538135,Contrasts,tasks.contrasts.total,#,62.0
+CNeuroMod,Physiology,#7030A0,ECG,physiology.ecg.total_h,h,584.1
+CNeuroMod,Physiology,#7030A0,Resp.,physiology.respiration.total_h,h,584.1
+CNeuroMod,Physiology,#7030A0,PPG,physiology.plethysmograph.total_h,h,584.1
+CNeuroMod,Physiology,#7030A0,EDA,physiology.eda.total_h,h,584.1
+CNeuroMod,Physiology,#7030A0,Eye,physiology.eye_tracking.total_h,h,135.9

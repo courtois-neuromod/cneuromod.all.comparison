@@ -124,7 +124,7 @@ def make_bubble_chart(column_groups, pivot, datasets_list, title, out_path,
     neuro_hour_paths = [
         p for gname, _, fields in column_groups
         for _, p, u in fields
-        if gname == "Brain recordings" and u == "h"
+        if gname in ("Brain recordings", "Brain") and u == "h"
     ]
 
     def _neuro_sum(ds):
@@ -296,7 +296,7 @@ def make_neuroimaging_depthvsbreadth(pivot_per_subject, pivot_total, datasets_li
         if column_groups is None:
             return []
         for gname, _color, fields in column_groups:
-            if gname == "Brain recordings":
+            if gname in ("Brain recordings", "Brain"):
                 return fields
         return []
 

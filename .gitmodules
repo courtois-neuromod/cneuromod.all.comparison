@@ -1,4 +1,4 @@
 [submodule "source_data/cneuromod"]
 	path = source_data/cneuromod
 	url = https://github.com/courtois-neuromod/cneuromod.all.git
-	branch = issue1_docs_integration
+	branch = issue11_automate_dataset_info
