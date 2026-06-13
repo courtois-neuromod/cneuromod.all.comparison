@@ -216,8 +216,8 @@ multfs,Tasks,#538135,Audio,tasks.audio.per_subject_unique,h,
 multfs,Tasks,#538135,Speech,tasks.speech_listening.per_subject_unique,h,
 multfs,Tasks,#538135,Text,tasks.text_reading.per_subject_unique,h,
 multfs,Tasks,#538135,Rest,tasks.resting_state.per_subject_h,h,
-multfs,Tasks,#538135,Controlled,tasks.controlled.per_subject_h,h,
-multfs,Tasks,#538135,Games,tasks.game.per_subject_h,h,8.8
+multfs,Tasks,#538135,Controlled,tasks.controlled.per_subject_h,h,8.8
+multfs,Tasks,#538135,Games,tasks.game.per_subject_h,h,
 multfs,Tasks,#538135,Contrasts,tasks.contrasts.per_subject,#,
 multfs,Physiology,#7030A0,ECG,physiology.ecg.per_subject_h,h,
 multfs,Physiology,#7030A0,Resp.,physiology.respiration.per_subject_h,h,

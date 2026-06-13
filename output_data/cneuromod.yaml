@@ -28,11 +28,11 @@ tasks:
     total_with_repetition: 754.5
   contrasts: 62
   controlled:
-    per_subject_h: 21.4
-    total_h: 128.37
+    per_subject_h: 28.7
+    total_h: 172.17
   game:
-    per_subject_h: 43.5
-    total_h: 261.2
+    per_subject_h: 36.2
+    total_h: 217.4
   images:
     per_subject_unique: 4320
     per_subject_with_repetition: 12960

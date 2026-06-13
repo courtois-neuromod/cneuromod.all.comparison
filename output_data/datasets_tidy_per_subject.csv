@@ -276,8 +276,8 @@ CNeuroMod,Tasks,#538135,Audio,tasks.audio.per_subject_unique,h,125.3
 CNeuroMod,Tasks,#538135,Speech,tasks.speech_listening.per_subject_unique,h,78.6
 CNeuroMod,Tasks,#538135,Text,tasks.text_reading.per_subject_unique,h,4.0
 CNeuroMod,Tasks,#538135,Rest,tasks.resting_state.per_subject_h,h,1.2
-CNeuroMod,Tasks,#538135,Controlled,tasks.controlled.per_subject_h,h,21.4
-CNeuroMod,Tasks,#538135,Games,tasks.game.per_subject_h,h,43.5
+CNeuroMod,Tasks,#538135,Controlled,tasks.controlled.per_subject_h,h,28.7
+CNeuroMod,Tasks,#538135,Games,tasks.game.per_subject_h,h,36.2
 CNeuroMod,Tasks,#538135,Contrasts,tasks.contrasts.per_subject,#,62.0
 CNeuroMod,Physiology,#7030A0,ECG,physiology.ecg.per_subject_h,h,97.4
 CNeuroMod,Physiology,#7030A0,Resp.,physiology.respiration.per_subject_h,h,97.4

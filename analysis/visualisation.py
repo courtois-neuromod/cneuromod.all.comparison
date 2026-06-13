@@ -92,7 +92,7 @@ def turbo_color(rank, n_ranks=10):
     """Return a turbo colormap color for rank (0 → RANK_GRAY sentinel, 1 → darkest, n_ranks → brightest)."""
     if rank == 0:
         return RANK_GRAY
-    return cm.get_cmap("plasma")(rank / (n_ranks + 1))
+    return cm.get_cmap("plasma")(min(rank / (n_ranks + 1), 0.75))
 
 
 def make_bubble_chart(column_groups, pivot, datasets_list, title, out_path,
@@ -438,7 +438,7 @@ def make_neuroimaging_depthvsbreadth(pivot_per_subject, pivot_total, datasets_li
     ax.spines["right"].set_visible(False)
 
     plt.tight_layout()
-    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    fig.savefig(out_path, dpi=300, bbox_inches="tight")
     plt.show()
     print(f"Saved {out_path.name}")
 
@@ -510,7 +510,7 @@ def _draw_radar_on_ax(ax, pivot_per_subject, dataset, task_fields, color, r_max=
     ax.set_theta_zero_location("N")
     ax.set_theta_direction(-1)
     ax.bar(angles, bar_heights, width=bar_width, bottom=0,
-           color=color, alpha=0.75, edgecolor="white", linewidth=0.8, zorder=3)
+           color=color, alpha=0.75, edgecolor="white", linewidth=2.0, zorder=3)
 
     # Redraw highlighted bars with a black outline on top
     if highlight_indices:
@@ -518,16 +518,16 @@ def _draw_radar_on_ax(ax, pivot_per_subject, dataset, task_fields, color, r_max=
         hi_heights = [bar_heights[i] for i in highlight_indices if bar_heights[i] > 0]
         if hi_angles:
             ax.bar(hi_angles, hi_heights, width=bar_width, bottom=0,
-                   color=color, alpha=0.75, edgecolor="black", linewidth=1.5, zorder=4)
+                   color=color, alpha=0.75, edgecolor="black", linewidth=3.0, zorder=4)
 
-    ax.set_thetagrids(np.degrees(angles), labels, fontsize=7)
+    ax.set_thetagrids(np.degrees(angles), [""] * N)
     ax.set_rlabel_position(0)
     ax.set_ylim(0, r_plot_max)
     ax.set_yticks(tick_pos)
-    ax.set_yticklabels(tick_labels, fontsize=6, color="grey")
-    ax.set_title(dataset, fontsize=10, fontweight="bold", color=color, pad=10)
+    ax.set_yticklabels([], fontsize=6, color="grey")
+    ax.set_title(dataset, fontsize=42, fontweight="bold", color=color, pad=10)
     ax.spines["polar"].set_visible(False)
-    ax.grid(color="grey", linestyle=":", linewidth=0.7, alpha=0.7)
+    ax.grid(color="grey", linestyle=":", linewidth=1.5, alpha=0.7)
 
 
 def make_task_composition_radar(pivot_per_subject, dataset, out_path,
@@ -587,14 +587,14 @@ def _draw_empty_radar_on_ax(ax, task_fields, r_max):
 
     ax.set_theta_zero_location("N")
     ax.set_theta_direction(-1)
-    ax.set_thetagrids(np.degrees(angles), labels, fontsize=9)
+    ax.set_thetagrids(np.degrees(angles), labels, fontsize=27)
     ax.set_rlabel_position(0)
     ax.set_ylim(0, r_plot_max)
     ax.set_yticks(tick_pos)
-    ax.set_yticklabels(tick_labels, fontsize=13, color="black", fontweight="bold")
-    ax.set_title("Scale", fontsize=11, fontweight="bold", color="black", pad=10)
+    ax.set_yticklabels(tick_labels, fontsize=27, color="black", fontweight="bold")
+    ax.set_title("Scale", fontsize=34, fontweight="bold", color="black", pad=10)
     ax.spines["polar"].set_visible(False)
-    ax.grid(color="black", linestyle="-", linewidth=1.0, alpha=0.5)
+    ax.grid(color="black", linestyle="-", linewidth=2.0, alpha=0.5)
 
 
 def make_radar_grid(pivot_per_subject, datasets_ranked, out_path,
@@ -642,11 +642,11 @@ def make_radar_grid(pivot_per_subject, datasets_ranked, out_path,
                 best_val, best_ds = val, ds
         task_max_ds.append(best_ds)
 
-    fig = plt.figure(figsize=(n_data_cols * 3.2 + legend_width_ratio * 3.2, n_rows * 3.4))
+    fig = plt.figure(figsize=(n_data_cols * 7.5 + legend_width_ratio * 7.5, n_rows * 7.5))
     gs = fig.add_gridspec(
         n_rows, n_data_cols + 1,
         width_ratios=[legend_width_ratio] + [1] * n_data_cols,
-        hspace=0.25, wspace=0.45,
+        hspace=0.05, wspace=0.10,
     )
 
     # Empty scale radar spanning both rows (replaces the text legend)
