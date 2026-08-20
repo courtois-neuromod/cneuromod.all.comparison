@@ -118,6 +118,7 @@ def run_tables(c):
 def run_cneuromod_tables(c):
     """Generate tidy summary tables from cneuromod.all dataset_info.yaml files."""
     from analysis.tables import (
+        build_cneuromod_subjects_table,
         build_cneuromod_tidy_table,
         COLUMN_GROUPS_PER_SUBJECT,
         COLUMN_GROUPS_TOTAL,
@@ -135,6 +136,11 @@ def run_cneuromod_tables(c):
         out_path = output_dir / f"cneuromod_tidy_{scope}.csv"
         df.to_csv(out_path, index=False)
         print(f"Saved {len(df)} rows to {out_path.name}")
+
+    df = build_cneuromod_subjects_table(cneuromod_dir)
+    out_path = output_dir / "cneuromod_subjects.csv"
+    df.to_csv(out_path, index=False)
+    print(f"Saved {len(df)} rows to {out_path.name}")
 
 
 @task(pre=[fetch])

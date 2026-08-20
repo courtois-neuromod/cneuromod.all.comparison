@@ -152,3 +152,24 @@ def load_cneuromod_datasets(cneuromod_dir: Path) -> list:
 def build_cneuromod_tidy_table(cneuromod_dir: Path, column_groups: list) -> pd.DataFrame:
     """Load cneuromod datasets and return a tidy long-format DataFrame."""
     return pd.DataFrame(_build_rows(load_cneuromod_datasets(cneuromod_dir), column_groups))
+
+
+def build_cneuromod_subjects_table(cneuromod_dir: Path) -> pd.DataFrame:
+    """Tidy table of per-dataset subject availability from cneuromod.all.
+
+    Columns: dataset, subject, status, note. `status` is the value recorded in
+    dataset_info.yaml (e.g. `available`, `partial`, `not_collected`); `note`
+    carries the free-text qualifier when there is one.
+    """
+    rows = []
+    for info_file in sorted(Path(cneuromod_dir).glob("*/dataset_info.yaml")):
+        with open(info_file) as f:
+            data = yaml.safe_load(f)
+        for subject in data.get("subjects", []) or []:
+            rows.append({
+                "dataset": info_file.parent.name,
+                "subject": subject.get("id", ""),
+                "status": subject.get("status", ""),
+                "note": subject.get("note", "") or "",
+            })
+    return pd.DataFrame(rows)
