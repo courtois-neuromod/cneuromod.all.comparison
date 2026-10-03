@@ -143,32 +143,7 @@ def run_cneuromod_tables(c):
     print(f"Saved {len(df)} rows to {out_path.name}")
 
 
-@task(pre=[fetch])
-def run_cneuromod_citations(c):
-    """Parse cneuromod_references.bib and save a tidy table of papers using CNeuroMod data, by year and type."""
-    from analysis.citations import parse_bib_to_table
-
-    output_dir = Path(c.config.get("output_data_dir")).resolve()
-    output_dir.mkdir(parents=True, exist_ok=True)
-    out_path = output_dir / "cneuromod_citations.csv"
-
-    if out_path.exists():
-        print(f"Already exists: {out_path.name} — skipping")
-        return
-
-    bib_path = (
-        Path(c.config.get("source_data_dir"))
-        / "cneuromod"
-        / "docs"
-        / "source"
-        / "cneuromod_references.bib"
-    )
-    df = parse_bib_to_table(bib_path)
-    df.to_csv(out_path, index=False)
-    print(f"Saved {len(df)} rows to {out_path.name}")
-
-
-@task(pre=[run_tables, run_cneuromod_tables, run_cneuromod_citations])
+@task(pre=[run_tables, run_cneuromod_tables])
 def run_figures(c):
     """Generate figures from the dataset YAML files using notebooks."""
     from airoh.utils import run_notebooks as airoh_run_notebooks, ensure_dir_exist
@@ -180,7 +155,7 @@ def run_figures(c):
     airoh_run_notebooks(c, notebooks_dir, output_dir, keys=["source_data_dir", "output_data_dir"])
 
 
-@task(pre=[run_cneuromod_tables, run_cneuromod_citations])
+@task(pre=[run_cneuromod_tables])
 def run_cneuromod_figures(c):
     """Generate CNeuroMod figures from cneuromod tidy tables using the cneuromod notebooks."""
     output_dir = Path(c.config.get("output_data_dir")).resolve()
@@ -190,7 +165,7 @@ def run_cneuromod_figures(c):
         "OUTPUT_DATA_DIR": str(output_dir),
         "SOURCE_DATA_DIR": str(Path(c.config.get("source_data_dir")).resolve()),
     }
-    for nb_name in ["cneuromod.ipynb", "cneuromod_citations.ipynb"]:
+    for nb_name in ["cneuromod.ipynb"]:
         nb = notebooks_dir / nb_name
         c.run(f"jupyter nbconvert --to notebook --execute --inplace {nb}", env=env)
 
@@ -206,15 +181,6 @@ def run_smoke(c):
     """Smoke test: minimal end-to-end pass."""
     fetch(c)
     run_figures(c)
-
-
-@task
-def clean_cneuromod_citations(c):
-    """Remove cneuromod_citations.csv from output_data/."""
-    out = Path(c.config.get("output_data_dir")).resolve() / "cneuromod_citations.csv"
-    if out.exists():
-        out.unlink()
-        print(f"Removed {out.name}")
 
 
 @task
