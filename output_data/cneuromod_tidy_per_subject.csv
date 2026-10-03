@@ -209,7 +209,7 @@ movie10,Physiology,#7030A0,Resp.,physiology.respiration.per_subject_h,h,10.0
 movie10,Physiology,#7030A0,PPG,physiology.plethysmograph.per_subject_h,h,10.0
 movie10,Physiology,#7030A0,EDA,physiology.eda.per_subject_h,h,10.0
 movie10,Physiology,#7030A0,Eye,physiology.eye_tracking.per_subject_h,h,
-multfs,Brain,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,8.8
+multfs,Brain,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,5.0
 multfs,Tasks,#538135,Images,tasks.images.per_subject_unique,#img,
 multfs,Tasks,#538135,Video,tasks.video.per_subject_unique,h,
 multfs,Tasks,#538135,Audio,tasks.audio.per_subject_unique,h,

@@ -265,7 +265,7 @@ movie10,Physiology,#7030A0,Resp.,physiology.respiration.total_h,h,60.0
 movie10,Physiology,#7030A0,PPG,physiology.plethysmograph.total_h,h,60.0
 movie10,Physiology,#7030A0,EDA,physiology.eda.total_h,h,60.0
 movie10,Physiology,#7030A0,Eye,physiology.eye_tracking.total_h,h,
-multfs,Brain recordings,#4472C4,fMRI,neuroimaging.fmri.total_h,h,43.8
+multfs,Brain recordings,#4472C4,fMRI,neuroimaging.fmri.total_h,h,24.9
 multfs,Brain recordings,#4472C4,EEG,neuroimaging.eeg.total_h,h,
 multfs,Brain recordings,#4472C4,MEG,neuroimaging.meg.total_h,h,
 multfs,Brain recordings,#4472C4,iEEG,neuroimaging.ieeg.total_h,h,
@@ -322,7 +322,7 @@ narratives,Physiology,#7030A0,Resp.,physiology.respiration.total_h,h,
 narratives,Physiology,#7030A0,PPG,physiology.plethysmograph.total_h,h,
 narratives,Physiology,#7030A0,EDA,physiology.eda.total_h,h,
 narratives,Physiology,#7030A0,Eye,physiology.eye_tracking.total_h,h,
-ood,Brain recordings,#4472C4,fMRI,neuroimaging.fmri.total_h,h,6.1
+ood,Brain recordings,#4472C4,fMRI,neuroimaging.fmri.total_h,h,8.1
 ood,Brain recordings,#4472C4,EEG,neuroimaging.eeg.total_h,h,
 ood,Brain recordings,#4472C4,MEG,neuroimaging.meg.total_h,h,
 ood,Brain recordings,#4472C4,iEEG,neuroimaging.ieeg.total_h,h,
