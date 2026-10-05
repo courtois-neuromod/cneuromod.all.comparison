@@ -114,36 +114,7 @@ def run_tables(c):
         print(f"Saved {len(df)} rows to {out_path.name}")
 
 
-@task(pre=[fetch])
-def run_cneuromod_tables(c):
-    """Generate tidy summary tables from cneuromod.all dataset_info.yaml files."""
-    from analysis.tables import (
-        build_cneuromod_subjects_table,
-        build_cneuromod_tidy_table,
-        COLUMN_GROUPS_PER_SUBJECT,
-        COLUMN_GROUPS_TOTAL,
-    )
-
-    cneuromod_dir = Path(c.config.get("source_data_dir")) / "cneuromod"
-    output_dir = Path(c.config.get("output_data_dir")).resolve()
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    for scope, groups in [
-        ("per_subject", COLUMN_GROUPS_PER_SUBJECT),
-        ("total", COLUMN_GROUPS_TOTAL),
-    ]:
-        df = build_cneuromod_tidy_table(cneuromod_dir, groups)
-        out_path = output_dir / f"cneuromod_tidy_{scope}.csv"
-        df.to_csv(out_path, index=False)
-        print(f"Saved {len(df)} rows to {out_path.name}")
-
-    df = build_cneuromod_subjects_table(cneuromod_dir)
-    out_path = output_dir / "cneuromod_subjects.csv"
-    df.to_csv(out_path, index=False)
-    print(f"Saved {len(df)} rows to {out_path.name}")
-
-
-@task(pre=[run_tables, run_cneuromod_tables])
+@task(pre=[run_tables])
 def run_figures(c):
     """Generate figures from the dataset YAML files using notebooks."""
     from airoh.utils import run_notebooks as airoh_run_notebooks, ensure_dir_exist
@@ -155,22 +126,7 @@ def run_figures(c):
     airoh_run_notebooks(c, notebooks_dir, output_dir, keys=["source_data_dir", "output_data_dir"])
 
 
-@task(pre=[run_cneuromod_tables])
-def run_cneuromod_figures(c):
-    """Generate CNeuroMod figures from cneuromod tidy tables using the cneuromod notebooks."""
-    output_dir = Path(c.config.get("output_data_dir")).resolve()
-    output_dir.mkdir(parents=True, exist_ok=True)
-    notebooks_dir = Path(c.config.get("notebooks_dir"))
-    env = {
-        "OUTPUT_DATA_DIR": str(output_dir),
-        "SOURCE_DATA_DIR": str(Path(c.config.get("source_data_dir")).resolve()),
-    }
-    for nb_name in ["cneuromod.ipynb"]:
-        nb = notebooks_dir / nb_name
-        c.run(f"jupyter nbconvert --to notebook --execute --inplace {nb}", env=env)
-
-
-@task(pre=[fetch, run_tables, run_figures, run_cneuromod_figures])
+@task(pre=[fetch, run_tables, run_figures])
 def run(c):
     """Full pipeline."""
     print("Pipeline complete.")
