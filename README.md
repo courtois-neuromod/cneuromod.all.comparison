@@ -39,8 +39,8 @@ This creates a `.venv` and installs all dependencies from `pyproject.toml`.
 
 | Task | Description |
 |---|---|
-| `fetch` | Validate all dataset YAML files in `source_data/` against the JSON schema |
-| `run-tables` | Build tidy CSV tables from source YAML files |
+| `fetch` | Initialize the `cneuromod.all` submodule (and its `cneuromod.all.statistics` submodule only), then validate all dataset YAML files in `source_data/` against the JSON schema |
+| `run-tables` | Build tidy CSV tables from source YAML files plus the CNeuroMod summary row from `cneuromod.all.statistics` |
 | `run-figures` | Execute notebooks, saving figures to `output_data/` |
 | `run` | Full pipeline: `fetch` → `run-tables` → `run-figures` |
 | `clean-{name}` | Remove outputs of one specific step |

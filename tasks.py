@@ -4,13 +4,17 @@ from invoke import task
 
 @task
 def fetch(c):
-    """Initialize/update submodules and validate dataset YAML files against source_data/schema.json."""
+    """Initialize/update submodules and validate dataset YAML files against the cneuromod.all schema."""
     from airoh.utils import ensure_submodule
     import json
     import yaml
     import jsonschema
 
     ensure_submodule(c, "source_data/cneuromod", recursive=False)
+    # Only the statistics submodule is needed (for the CNeuroMod summary row);
+    # never init cneuromod.all recursively — it pulls every dataset.
+    c.run("git -C source_data/cneuromod submodule update --init "
+          "analysis/cneuromod.all.statistics")
 
     source_dir = Path(c.config.get("source_data_dir"))
     schema_file = source_dir / "cneuromod" / "docs" / "schema.json"
@@ -54,44 +58,8 @@ def fetch(c):
         raise SystemExit(f"Validation failed: {', '.join(errors)}")
     print(f"All {len(yaml_files)} dataset(s) valid.")
 
-    cneuromod_dir = source_dir / "cneuromod"
-    cneuromod_yaml_files = sorted(cneuromod_dir.glob("*/dataset_info.yaml"))
-    if cneuromod_yaml_files:
-        cneuromod_errors = []
-        for yaml_file in cneuromod_yaml_files:
-            with open(yaml_file) as f:
-                data = yaml.safe_load(f)
-            stats = data.get("stats", {})
-            stats.setdefault("name", yaml_file.parent.name)
-            try:
-                jsonschema.validate(stats, schema)
-                print(f"  OK  cneuromod/{yaml_file.parent.name}/dataset_info.yaml")
-            except jsonschema.ValidationError as e:
-                print(f"  ERR cneuromod/{yaml_file.parent.name}/dataset_info.yaml: {e.message}")
-                cneuromod_errors.append(str(yaml_file))
-        if cneuromod_errors:
-            raise SystemExit(f"CNeuroMod validation failed: {', '.join(cneuromod_errors)}")
-        print(f"All {len(cneuromod_yaml_files)} CNeuroMod dataset(s) valid.")
 
-
-@task(pre=[fetch])
-def make_cneuromod_yaml(c):
-    """Aggregate all cneuromod dataset_info.yaml stats into output_data/cneuromod.yaml."""
-    import yaml as _yaml
-    from analysis.tables import aggregate_cneuromod_yaml
-
-    cneuromod_dir = Path(c.config.get("source_data_dir")) / "cneuromod"
-    output_dir = Path(c.config.get("output_data_dir")).resolve()
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    combined = aggregate_cneuromod_yaml(cneuromod_dir)
-    out_path = output_dir / "cneuromod.yaml"
-    with open(out_path, "w") as f:
-        _yaml.dump(combined, f, default_flow_style=False, allow_unicode=True)
-    print(f"Saved combined CNeuroMod stats to {out_path.name}")
-
-
-@task(pre=[make_cneuromod_yaml])
+@task
 def run_tables(c):
     """Generate tidy summary tables from the dataset YAML files."""
     from analysis.tables import (
@@ -102,7 +70,11 @@ def run_tables(c):
 
     source_dir = Path(c.config.get("source_data_dir"))
     output_dir = Path(c.config.get("output_data_dir")).resolve()
-    cneuromod_yaml = output_dir / "cneuromod.yaml"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    cneuromod_yaml = Path(c.config.get("cneuromod_summary"))
+    if not cneuromod_yaml.exists():
+        raise SystemExit(f"{cneuromod_yaml} not found — run `invoke fetch` first "
+                         "(it is produced and tracked by cneuromod.all.statistics).")
 
     for scope, groups in [
         ("per_subject", COLUMN_GROUPS_PER_SUBJECT),

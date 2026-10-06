@@ -99,35 +99,3 @@ def build_tidy_table(source_dir: Path, column_groups: list, extra_yaml_files=Non
             datasets.append(yaml.safe_load(f))
     return pd.DataFrame(_build_rows(datasets, column_groups))
 
-
-def aggregate_cneuromod_yaml(cneuromod_dir: Path) -> dict:
-    """Aggregate all cneuromod dataset_info.yaml stats into one schema-compatible dict."""
-    raw = []
-    for info_file in sorted(Path(cneuromod_dir).glob("*/dataset_info.yaml")):
-        with open(info_file) as f:
-            raw.append(yaml.safe_load(f).get("stats", {}))
-
-    def _sum_dicts(dicts):
-        result = {}
-        for key in set(k for d in dicts for k in d):
-            values = [d[key] for d in dicts if key in d]
-            if all(isinstance(v, dict) for v in values):
-                result[key] = _sum_dicts(values)
-            elif all(isinstance(v, (int, float)) for v in values):
-                result[key] = sum(values)
-        return result
-
-    combined = _sum_dicts([{k: v for k, v in d.items() if k != "subjects_n"} for d in raw])
-    subjects_n = 6
-    combined["subjects_n"] = subjects_n
-    combined["name"] = "CNeuroMod"
-
-    def _fix_per_subject_h(d):
-        if "total_h" in d and "per_subject_h" in d:
-            d["per_subject_h"] = round(d["total_h"] / subjects_n, 1)
-        for v in d.values():
-            if isinstance(v, dict):
-                _fix_per_subject_h(v)
-
-    _fix_per_subject_h(combined)
-    return combined

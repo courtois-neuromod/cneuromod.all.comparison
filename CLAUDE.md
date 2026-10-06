@@ -8,13 +8,13 @@ This project systematically compares dense neuroAI datasets in terms of the volu
 
 **Package manager:** `uv` (see `pyproject.toml`).
 
-**Pipeline:** `fetch` validates all YAML files in `source_data/` against the JSON Schema at `source_data/cneuromod/docs/schema.json`; `run-tables` runs `analysis/tables.py` to produce `output_data/datasets_tidy_*.csv`; `run-figures` executes notebooks in `notebooks/` (reading the tidy CSVs) to produce figures in `output_data/`. All source data is manually curated and version-controlled via git.
+**Pipeline:** `fetch` initializes the `source_data/cneuromod` submodule (plus its nested `analysis/cneuromod.all.statistics` submodule, never recursively) and validates all YAML files in `source_data/` against the JSON Schema at `source_data/cneuromod/docs/schema.json`; `run-tables` runs `analysis/tables.py` on those YAMLs plus the CNeuroMod summary row to produce `output_data/datasets_tidy_*.csv`; `run-figures` executes notebooks in `notebooks/` (reading the tidy CSVs) to produce figures in `output_data/`. All source data is manually curated and version-controlled via git.
 
 ## Dataset Assets
 
 Each dataset has two files in `source_data/`:
 
-- `<name>.yaml` — structured data entry, validated against `source_data/schema.json`. Only populate fields that are relevant to the dataset (e.g. omit `neuroimaging.meg` entirely if the dataset has no MEG).
+- `<name>.yaml` — structured data entry, validated against `source_data/cneuromod/docs/schema.json`. Only populate fields that are relevant to the dataset (e.g. omit `neuroimaging.meg` entirely if the dataset has no MEG).
 - `<name>.md` — markdown sidecar that justifies every value in the YAML with direct quotes from the corresponding publication(s) or official documentation.
 
 The markdown sidecar should:
@@ -64,7 +64,7 @@ invoke --list             # Show all available tasks
 
 **Execution flow:** `invoke run` triggers the project's analysis pipeline via `pre=` dependencies declared in `tasks.py`. The three permanent tasks — `fetch`, `run`, `clean` — are always present; intermediate steps are project-specific.
 
-- `invoke.yaml` — all path config (`output_data_dir`, `source_data_dir`, `notebooks_dir`)
+- `invoke.yaml` — all path config (`output_data_dir`, `source_data_dir`, `notebooks_dir`, `cneuromod_summary`)
 - `tasks.py` — project-specific invoke tasks; imports reusable tasks from `airoh.utils`
 - `analysis/tables.py` — defines `COLUMN_GROUPS` (field registry with labels, dotpaths, units, colors) and `build_tidy_table(source_dir)` which produces the long-format DataFrame; run via `run-tables`
 - `source_data/cneuromod/docs/schema.json` — authoritative JSON Schema for dataset YAML files; edit here to add new modalities or fields
@@ -107,4 +107,4 @@ The schema defines two field types:
 2. If different subjects receive different subsets of tasks that share the same task environment (e.g. fractional subtask designs), treat the per-subject subset as the unique content — do not sum across subtask variants.
 3. When all subjects run the same task environment, `total_unique = per_subject_unique` (no unique content is added by running more subjects).
 
-**`source_data/cneuromod` is a git submodule** pointing to a separate project (`cneuromod.all`). Never modify any files inside `source_data/cneuromod/` — changes must go through that project's own repository. The submodule's `dataset_info.yaml` files use their own schema and are read by `aggregate_cneuromod_yaml` in `analysis/tables.py`. The per-dataset CNeuroMod comparison (tidy tables + bubble charts per CNeuroMod dataset) lives in the `cneuromod.all.statistics` repository, not here.
+**`source_data/cneuromod` is a git submodule** pointing to a separate project (`cneuromod.all`). Never modify any files inside `source_data/cneuromod/` — changes must go through that project's own repository. This repo reads only two files from it: `docs/schema.json` and `analysis/cneuromod.all.statistics/output_data/cneuromod_summary.yaml` (the `cneuromod_summary` key in `invoke.yaml`). It contains no CNeuroMod-specific logic: aggregating the per-dataset `dataset_info.yaml` stats into one CNeuroMod row, and every CNeuroMod-specific table and figure, live in `cneuromod.all.statistics`. To refresh the CNeuroMod row, rerun `run-cneuromod-summary` there, commit, bump the statistics pointer in `cneuromod.all`, then bump `source_data/cneuromod` here. Never initialize the submodule recursively — it would pull every CNeuroMod dataset.

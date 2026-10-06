@@ -11,3 +11,7 @@ source_data_dir: source_data
 
 # Output data folder
 output_data_dir: output_data
+
+# Single CNeuroMod row for the comparison: produced and git-tracked by
+# cneuromod.all.statistics, reached through the cneuromod.all submodule.
+cneuromod_summary: source_data/cneuromod/analysis/cneuromod.all.statistics/output_data/cneuromod_summary.yaml
