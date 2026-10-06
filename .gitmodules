@@ -1,4 +1,4 @@
 [submodule "source_data/cneuromod"]
 	path = source_data/cneuromod
 	url = https://github.com/courtois-neuromod/cneuromod.all.git
-	branch = update-statistics-summary
+	branch = main
