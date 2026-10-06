@@ -341,7 +341,7 @@ UK Biobank,Physiology,#7030A0,Resp.,physiology.respiration.total_h,h,
 UK Biobank,Physiology,#7030A0,PPG,physiology.plethysmograph.total_h,h,
 UK Biobank,Physiology,#7030A0,EDA,physiology.eda.total_h,h,
 UK Biobank,Physiology,#7030A0,Eye,physiology.eye_tracking.total_h,h,
-CNeuroMod,Brain recordings,#4472C4,fMRI,neuroimaging.fmri.total_h,h,970.3
+CNeuroMod,Brain recordings,#4472C4,fMRI,neuroimaging.fmri.total_h,h,953.4
 CNeuroMod,Brain recordings,#4472C4,EEG,neuroimaging.eeg.total_h,h,
 CNeuroMod,Brain recordings,#4472C4,MEG,neuroimaging.meg.total_h,h,
 CNeuroMod,Brain recordings,#4472C4,iEEG,neuroimaging.ieeg.total_h,h,

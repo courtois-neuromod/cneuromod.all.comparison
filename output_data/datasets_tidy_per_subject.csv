@@ -269,7 +269,7 @@ UK Biobank,Physiology,#7030A0,Resp.,physiology.respiration.per_subject_h,h,
 UK Biobank,Physiology,#7030A0,PPG,physiology.plethysmograph.per_subject_h,h,
 UK Biobank,Physiology,#7030A0,EDA,physiology.eda.per_subject_h,h,
 UK Biobank,Physiology,#7030A0,Eye,physiology.eye_tracking.per_subject_h,h,
-CNeuroMod,Brain,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,161.7
+CNeuroMod,Brain,#4472C4,fMRI,neuroimaging.fmri.per_subject_h,h,158.9
 CNeuroMod,Tasks,#538135,Images,tasks.images.per_subject_unique,#img,4320.0
 CNeuroMod,Tasks,#538135,Video,tasks.video.per_subject_unique,h,125.1
 CNeuroMod,Tasks,#538135,Audio,tasks.audio.per_subject_unique,h,125.3
